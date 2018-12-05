@@ -1,20 +1,17 @@
 #!/bin/sh
+#Requires two args: First is the name of the file to read from, second is the name of the new file.
+#Don't pass a .tmp extension as $2 or it will be deleted.
+#What this script does is basically keep only a HH:MM:SS timestamp, cuts anything else on each line.
+#The only thing is that you have to make sure there's a : after the timestamp for this script to work.
+#Ex: 01:37:42:adfkjoafsdjkjal --> 01:37:42
 if [ $# -eq 2 ]; then
-        tail -2 $1 > temporaryfilename.txt #saves last line of the file.
-        cp $1 temp.txt.tmp
-        sed '$ d' temp.txt.tmp > tempfile.txt.tmp
-        rm -f temp.txt.tmp
-	    cat tempfile.txt.tmp | cut -f1,2,3 -d':' | awk '!seen[$0]++' > anothertemp.txt
-        tail -1 temporaryfilename.txt >> anothertemp.txt #adds last line back
-	    cat anothertemp.txt | tr -d " \t\r" > $2
-        sed '/^$/d' $2 > temp3.txt #removes blank lines.
-        cp temp3.txt $2
-        rm temporaryfilename.txt
-        rm tempfile.txt.tmp
-        rm temp3.txt
-	rm anothertemp.txt
+    cp $1 tempfile.txt.tmp #copies contents of $1 to a temp file.
+    cat tempfile.txt.tmp | cut -f1,2,3 -d':' | awk '!seen[$0]++' > anothertemp.txt.tmp
+    cat anothertemp.txt.tmp | tr -d " \t\r" > $2
+    sed '/^$/d' $2 > temp3.txt.tmp #removes blank lines.
+    cp temp3.txt.tmp $2
+    rm *.tmp
 else
-        echo "Command line arguments are $# not 2, command requires the original file, then a name for the new file"
-        exit 1
+    echo "Command line arguments are $# not 2, command requires the original file, then a name for the new file"
+    exit 1
 fi
-
